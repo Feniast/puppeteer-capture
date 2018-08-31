@@ -23,6 +23,7 @@ program
   .option('-o, --omit-background', 'Hides default white background and allows capturing screenshots with transparency')
   .option('-i, --image-format <string>', 'Image format. Defaults to "png"', 'png')
   .option('-p, --path <string>', 'The file path to save the image to')
+  .option('-d, --device <string>', 'The device to emulate, such as "iPhone 7"')
   .action((url, options) => {
     const width = util.parseInteger(options.width);
     if(isNaN(width)) {
@@ -44,6 +45,7 @@ program
     const fullPage = options.fullPage || false;
     const omitBackground = options.omitBackground || false;
     const path = options.path;
+    const device = options.device;
 
     const screenshotOptions = {
       width,
@@ -51,7 +53,8 @@ program
       imageFormat,
       fullPage,
       omitBackground,
-      path
+      path,
+      device
     };
 
     screenshot(url, screenshotOptions).then(result => {}).catch(e => {

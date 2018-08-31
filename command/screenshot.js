@@ -1,5 +1,6 @@
 const puppteer = require('puppeteer');
 const dayjs = require('dayjs');
+const devices = require('puppeteer/DeviceDescriptors');
 const util = require('../util');
 const fs = require('fs');
 const path = require('path');
@@ -42,15 +43,26 @@ const screenshot = async (url, options = {}) => {
     fullPage,
     omitBackground,
     imageFormat,
-    path
+    path,
+    device
   } = options;
   const browser = await puppteer.launch();
   const page = await browser.newPage();
+
+  if (util.isString(device)) {
+    const deviceConfig = devices[device];
+    if(deviceConfig) {
+      await page.emulate(deviceConfig);
+    }
+  } else {
+    await page.setViewport({
+      width,
+      height
+    });
+  }
+
   await page.goto(url);
-  await page.setViewport({
-    width,
-    height
-  });
+  
   const imagePath = resolveImagePath(path, imageFormat);
   await page.screenshot({
     path: imagePath,
