@@ -22,7 +22,7 @@ const parseInteger = str => {
  * @param {String} str
  */
 const isSupportedScreenshotFormat = str => {
-  return str === 'jpeg' || str === 'png';
+  return str === 'jpeg' || str === 'jpg' || str === 'png';
 };
 
 /**

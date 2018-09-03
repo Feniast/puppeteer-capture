@@ -53,7 +53,7 @@ program
 
     const fullPage = options.fullPage || false;
     const omitBackground = options.omitBackground || false;
-    const path = options.path;
+    const dest = options.path;
     const device = options.device;
 
     const screenshotOptions = {
@@ -62,7 +62,7 @@ program
       imageFormat,
       fullPage,
       omitBackground,
-      path,
+      dest,
       device
     };
 

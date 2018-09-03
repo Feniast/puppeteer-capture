@@ -1,17 +1,21 @@
 const path = require('path');
-const puppeteer = require('puppeteer');
+const fs = require('fs');
 const dayjs = require('dayjs');
 const devices = require('puppeteer/DeviceDescriptors');
 const util = require('../tool/util');
 const BrowserPagePool = require('../tool/browserPagePool');
 
+/**
+ * get the default image name according to the file extension provided
+ * @param {String} ext 
+ */
 const defaultImageName = ext => {
   const dateStr = dayjs().format('YYYYMMDDHHmmssSSS');
   return `screenshot-${dateStr}.${ext}`;
 }
 
 /**
- * 
+ * normalize the image path 
  * @param {String} imagePath 
  * @param {String} ext 
  */
@@ -20,21 +24,36 @@ const resolveImagePath = (imagePath, ext) => {
   if (!util.isString(imagePath) || util.isEmptyString(imagePath)) {
     newPath = './';
   }
-  if (newPath.endsWith('.')) {
-    newPath = newPath + '/';
-  }
-  if (newPath.endsWith('/')) {
-    newPath = `${newPath}${defaultImageName(ext)}`;
-  }
   const extName = path.extname(newPath);
   if (extName === '') {
-    newPath = `${newPath}.${ext}`;
+    // Try to detect if this is a directory
+    if (!path.isAbsolute(newPath)) {
+      newPath = path.resolve(process.cwd(), newPath);
+    }
+    if (!fs.existsSync(newPath)) {
+      fs.mkdirSync(newPath);
+    }
+    if (!newPath.endsWith('/')) newPath = newPath + '/';
+    newPath = newPath + defaultImageName(ext);
   }
   else if (!util.isSupportedScreenshotFormat(extName.slice(1))){
     newPath = `${newPath.slice(0, newPath.length - extName.length)}.${ext}`;
   }
   return newPath;
 };
+
+/**
+ * get the image file extension of the filename
+ * @param {String} filename 
+ */
+const resolveImageFormat = filename => {
+  if (!util.isString(filename) || util.isEmptyString(filename)) {
+    return '';
+  }
+  const ext = path.extname(filename).slice(1);
+  if (ext === 'jpg') return 'jpeg';
+  return ext;
+}
 
 const screenshot = async (url, options = {}) => {
   const {
@@ -43,7 +62,7 @@ const screenshot = async (url, options = {}) => {
     fullPage,
     omitBackground,
     imageFormat,
-    path,
+    dest,
     device
   } = options;
   const pool = BrowserPagePool.create();
@@ -69,10 +88,11 @@ const screenshot = async (url, options = {}) => {
 
   await page.goto(url);
   
-  const imagePath = resolveImagePath(path, imageFormat);
+  const imagePath = resolveImagePath(dest, imageFormat);
+  const newImageFormat = resolveImageFormat(imagePath);
   await page.screenshot({
     path: imagePath,
-    type: imageFormat,
+    type: newImageFormat,
     fullPage,
     omitBackground
   });
