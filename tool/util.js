@@ -25,8 +25,16 @@ const isSupportedScreenshotFormat = str => {
   return str === 'jpeg' || str === 'png';
 };
 
+/**
+ * check if something is a string
+ * @param {any} o 
+ */
 const isString = o => Object.prototype.toString.call(o) === '[object String]';
 
+/**
+ * check if a string is empty
+ * @param {String} s 
+ */
 const isEmptyString = s => (s == null || s.trim() === '');
 
 module.exports = {

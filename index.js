@@ -2,9 +2,10 @@
 
 const program = require('commander');
 
-const util = require('./util');
+const util = require('./tool/util');
 
 const screenshot = require('./command/screenshot');
+const device = require('./command/device');
 
 const exitProgram = (str) => {
   console.error(str);
@@ -12,17 +13,25 @@ const exitProgram = (str) => {
 }
 
 program
-  .version('0.1.0');
+  .version('0.1.0', '-v, --version')
+  .usage('[command] <options>');
 
 program
-  .command('screenshot <url>')
+  .command('device')
+  .description('Show the list of supported devices which puppeteer can emulate')
+  .action(() => {
+    device.list();
+  });
+
+program
+  .command('screenshot <url...>')
   .description('Take a screenshot of a web page')
-  .option('-w, --width <number>', 'Viewport width in pixels. Defaults to 800', 800)
-  .option('-h, --height <number>', 'Viewport height in pixels. Defaults to 600', 600)
-  .option('-f, --full-page', 'Take a screenshot of full scrollable page')
-  .option('-o, --omit-background', 'Hides default white background and allows capturing screenshots with transparency')
-  .option('-i, --image-format <string>', 'Image format. Defaults to "png"', 'png')
-  .option('-p, --path <string>', 'The file path to save the image to')
+  .option('-w, --width <number>', 'Viewport width in pixels', 800)
+  .option('-l, --height <number>', 'Viewport height in pixels', 600)
+  .option('-f, --full-page', 'Take a screenshot of full scrollable page. Defaults to false')
+  .option('-o, --omit-background', 'Hides default white background and allows capturing screenshots with transparency. Defaults to false')
+  .option('-i, --image-format <string>', 'Image format the screenshot uses', 'png')
+  .option('-p, --path <string>', 'The file path to save the screenshot to. Defaults to current directory')
   .option('-d, --device <string>', 'The device to emulate, such as "iPhone 7"')
   .action((url, options) => {
     const width = util.parseInteger(options.width);
@@ -57,9 +66,13 @@ program
       device
     };
 
-    screenshot(url, screenshotOptions).then(result => {}).catch(e => {
+    screenshot(url[0], screenshotOptions).then(result => {
+
+    }).catch(e => {
       console.error(e);
       exitProgram(e.message);
+    }).finally(() => {
+      // browserPagePool.close();
     });
   });
 
@@ -72,3 +85,5 @@ program
 
 program
   .parse(process.argv);
+
+if (!program.args.length) program.help();

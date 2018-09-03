@@ -1,9 +1,9 @@
-const puppteer = require('puppeteer');
+const path = require('path');
+const puppeteer = require('puppeteer');
 const dayjs = require('dayjs');
 const devices = require('puppeteer/DeviceDescriptors');
-const util = require('../util');
-const fs = require('fs');
-const path = require('path');
+const util = require('../tool/util');
+const BrowserPagePool = require('../tool/browserPagePool');
 
 const defaultImageName = ext => {
   const dateStr = dayjs().format('YYYYMMDDHHmmssSSS');
@@ -46,13 +46,19 @@ const screenshot = async (url, options = {}) => {
     path,
     device
   } = options;
-  const browser = await puppteer.launch();
-  const page = await browser.newPage();
+  const pool = BrowserPagePool.create();
+  const page = await pool.acquire();
 
+  // const browser = await puppeteer.launch();
+  // const page = await browser.newPage();
+
+  // If device provided, use the device settings. Otherwise set the viewport
   if (util.isString(device)) {
     const deviceConfig = devices[device];
     if(deviceConfig) {
       await page.emulate(deviceConfig);
+    } else {
+      console.warn(`The device ${device} is not supported. Use the default settings instead.`);
     }
   } else {
     await page.setViewport({
@@ -70,8 +76,8 @@ const screenshot = async (url, options = {}) => {
     fullPage,
     omitBackground
   });
-
-  await browser.close();
+  
+  await pool.destroy();
 };
 
 module.exports = screenshot;

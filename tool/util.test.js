@@ -23,3 +23,20 @@ test('check if a image format is supported screenshot format', () => {
   expect(util.isSupportedScreenshotFormat('jpeg')).toBe(true);
   expect(util.isSupportedScreenshotFormat('gif')).toBe(false);
 });
+
+test('isString function', () => {
+  expect(util.isString('')).toBe(true);
+  expect(util.isString(1)).toBe(false);
+  expect(util.isString(undefined)).toBe(false);
+  expect(util.isString(null)).toBe(false);
+  expect(util.isString({})).toBe(false);
+  expect(util.isString(false)).toBe(false);
+  expect(util.isString([])).toBe(false);
+});
+
+test('isEmptyString function', () => {
+  expect(util.isEmptyString('')).toBe(true);
+  expect(util.isEmptyString('   ')).toBe(true);
+  expect(util.isEmptyString(' asdf ')).toBe(false);
+  expect(util.isEmptyString(null)).toBe(true);
+});
