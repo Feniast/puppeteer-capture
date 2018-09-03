@@ -15,7 +15,7 @@ const defaultImageName = ext => {
 }
 
 /**
- * normalize the image path 
+ * resolve the image path 
  * @param {String} imagePath 
  * @param {String} ext 
  */
@@ -55,7 +55,69 @@ const resolveImageFormat = filename => {
   return ext;
 }
 
-const screenshot = async (url, options = {}) => {
+/**
+ * resolve the directory
+ * @param {String} dir 
+ */
+const resolveDir = (dir) => {
+  let newPath = dir;
+  if (!util.isString(dir) || util.isEmptyString(dir)) {
+    newPath = './';
+  } else {
+    newPath = dir.replace(/\\/g, '/');
+  }
+  if (!path.isAbsolute(newPath)) {
+    newPath = path.resolve(process.cwd(), newPath);
+  }
+  if (!fs.existsSync(newPath)) {
+    fs.mkdirSync(newPath);
+  }
+  return newPath;
+};
+
+/**
+ * Take a screenshot for a single page
+ * @param {String} url 
+ * @param {Object} options 
+ */
+const makeScreenshot = async (url, options = {}) => {
+  const {
+    width,
+    height,
+    fullPage,
+    omitBackground,
+    imageFormat,
+    dest,
+    deviceConfig,
+    pool
+  } = options;
+  
+  const page = await pool.acquire();
+
+  if (deviceConfig != null) {
+    await page.emulate(deviceConfig);
+  } else {
+    await page.setViewport({
+      width,
+      height
+    });
+  }
+
+  await page.goto(url);
+
+  let savePath = dest;
+  savePath += savePath.endsWith('/') ? '' : '/';
+  savePath += defaultImageName(imageFormat);
+  //const newImageFormat = resolveImageFormat(imagePath);
+  await page.screenshot({
+    path: savePath,
+    type: imageFormat,
+    fullPage,
+    omitBackground
+  });
+}
+
+const screenshot = async (urls, options = {}) => {
   const {
     width,
     height,
@@ -65,37 +127,32 @@ const screenshot = async (url, options = {}) => {
     dest,
     device
   } = options;
+
+  if (urls.length === 0) return;
+
   const pool = BrowserPagePool.create();
-  const page = await pool.acquire();
 
-  // const browser = await puppeteer.launch();
-  // const page = await browser.newPage();
-
-  // If device provided, use the device settings. Otherwise set the viewport
-  if (util.isString(device)) {
-    const deviceConfig = devices[device];
-    if(deviceConfig) {
-      await page.emulate(deviceConfig);
-    } else {
-      console.warn(`The device ${device} is not supported. Use the default settings instead.`);
-    }
-  } else {
-    await page.setViewport({
-      width,
-      height
-    });
+  const deviceConfig = devices[device];
+  if (!deviceConfig) {
+    console.warn(`The device ${device} is not supported. Use the default settings instead.`);
   }
 
-  await page.goto(url);
-  
-  const imagePath = resolveImagePath(dest, imageFormat);
-  const newImageFormat = resolveImageFormat(imagePath);
-  await page.screenshot({
-    path: imagePath,
-    type: newImageFormat,
-    fullPage,
-    omitBackground
-  });
+  const srcUrls = Array.isArray(urls) ? urls : [urls];
+  let destPath = resolveDir(dest);
+  const tasks = Promise.all(srcUrls.map(async url => {
+    await makeScreenshot(url, {
+      width,
+      height,
+      fullPage,
+      omitBackground,
+      imageFormat,
+      dest: destPath,
+      deviceConfig,
+      pool
+    });
+  }));
+
+  await tasks;
   
   await pool.destroy();
 };

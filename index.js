@@ -33,7 +33,7 @@ program
   .option('-i, --image-format <string>', 'Image format the screenshot uses', 'png')
   .option('-p, --path <string>', 'The file path to save the screenshot to. Defaults to current directory')
   .option('-d, --device <string>', 'The device to emulate, such as "iPhone 7"')
-  .action((url, options) => {
+  .action((urls, options) => {
     const width = util.parseInteger(options.width);
     if(isNaN(width)) {
       exitProgram(`The width '${options.width}' is not a valid number. Provide something like 1000, 2000, etc.`);
@@ -66,7 +66,7 @@ program
       device
     };
 
-    screenshot(url[0], screenshotOptions).then(result => {
+    screenshot(urls, screenshotOptions).then(result => {
 
     }).catch(e => {
       console.error(e);
