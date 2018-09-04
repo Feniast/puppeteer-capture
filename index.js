@@ -13,8 +13,9 @@ const exitProgram = (str) => {
 }
 
 program
+  .name('puppeteer-capture-helper')
   .version('0.1.0', '-v, --version')
-  .usage('[command] <options>');
+  .usage('[options] command');
 
 program
   .command('device')
@@ -25,6 +26,7 @@ program
 
 program
   .command('screenshot <url...>')
+  .usage('<url...> [options]')
   .description('Take a screenshot of a web page')
   .option('-w, --width <number>', 'Viewport width in pixels', 800)
   .option('-l, --height <number>', 'Viewport height in pixels', 600)
@@ -82,6 +84,11 @@ program
   .action((url, options) => {
     console.log(url, options);
   });
+
+// process unknown commands
+program.on('command:*', () => {
+  exitProgram(`Invalid command: ${program.args.join(' ')}\nSee --help for a list of available commands.`);
+});
 
 program
   .parse(process.argv);
