@@ -133,7 +133,7 @@ const screenshot = async (urls, options = {}) => {
   const pool = BrowserPagePool.create();
 
   const deviceConfig = devices[device];
-  if (!deviceConfig) {
+  if (!util.isEmptyString(device) && !deviceConfig) {
     console.warn(`The device ${device} is not supported. Use the default settings instead.`);
   }
 

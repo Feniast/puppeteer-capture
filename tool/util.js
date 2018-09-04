@@ -37,10 +37,21 @@ const isString = o => Object.prototype.toString.call(o) === '[object String]';
  */
 const isEmptyString = s => (s == null || s.trim() === '');
 
+/**
+ * exit the process with the error message
+ * @param {String} str 
+ */
+const exitProgram = (str) => {
+  console.error(str);
+  process.exit(1);
+}
+
+
 module.exports = {
   isStrNumber,
   parseInteger,
   isSupportedScreenshotFormat,
   isString,
-  isEmptyString
+  isEmptyString,
+  exitProgram
 };
