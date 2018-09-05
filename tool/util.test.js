@@ -40,3 +40,16 @@ test('isEmptyString function', () => {
   expect(util.isEmptyString(' asdf ')).toBe(false);
   expect(util.isEmptyString(null)).toBe(true);
 });
+
+test('fixUrl function', () => {
+  expect(util.fixUrl('www.example.com')).toBe('//www.example.com');
+  expect(util.fixUrl('http://www.example.com')).toBe('http://www.example.com');
+  expect(util.fixUrl('https://www.example.com')).toBe('https://www.example.com');
+});
+
+test('exitProgram function', () => {
+  const exit = jest.spyOn(process, 'exit').mockImplementation(number => number);
+  //run your test
+  util.exitProgram('error happened');
+  expect(exit).toHaveBeenCalledWith(1);
+});

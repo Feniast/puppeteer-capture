@@ -46,6 +46,19 @@ const exitProgram = (str) => {
   process.exit(1);
 }
 
+/**
+ * add required prefix to the url so that puppeteer can go to the url successfully
+ * WARNING: this function cannot fix a wrong url or a non-existent url
+ * @param {String} str 
+ */
+const fixUrl = str => {
+  let s = str;
+  if (!/^((https?|ftp):)?\/\//.test(s)) {
+    s = '//' + str;
+  }
+  return s;
+}
+
 
 module.exports = {
   isStrNumber,
@@ -53,5 +66,6 @@ module.exports = {
   isSupportedScreenshotFormat,
   isString,
   isEmptyString,
-  exitProgram
+  exitProgram,
+  fixUrl
 };
