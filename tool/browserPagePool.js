@@ -21,7 +21,11 @@ class BrowserPagePool {
     if(this._browserPromise == null) {
       this._browserPromise = puppeteer.launch(this.options);
     }
-    this.browser = await this._browserPromise;
+    try {
+      this.browser = await this._browserPromise;
+    } catch (e) {
+      util.exitProgram('Cannot get the browser instance. Check if you have installed Chromium or Chrome and set the correct executable path');
+    }
     return this.browser;
   }
 

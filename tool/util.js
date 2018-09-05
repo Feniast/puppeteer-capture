@@ -80,6 +80,15 @@ const removeEmptyValues = obj => {
   return newObj;
 }
 
+const failWhenTimeout = (task, timeout = 5000) => {
+  const timeoutPromise = new Promise(function(resolve, reject) {
+    setTimeout(function() {
+      reject(new Error('timeout'));
+    }, timeout);
+  });
+  return Promise.race([task, timeoutPromise]);
+}
+
 
 module.exports = {
   isStrNumber,
@@ -89,5 +98,6 @@ module.exports = {
   isEmptyString,
   exitProgram,
   fixUrl,
-  removeEmptyValues
+  removeEmptyValues,
+  failWhenTimeout
 };
