@@ -1,6 +1,8 @@
 const { exitProgram } = require('../tool/util');
 const screenshot = require('../command/screenshot');
 
+const DEFAULT_TIMEOUT = 30000;
+
 exports.command = 'screenshot <urls...>'
 
 exports.describe = 'Take a screenshot of a web page'
@@ -43,6 +45,12 @@ exports.builder = {
     alias: 'device',
     type: 'string',
     describe: 'The device to emulate, such as "iPhone 7"'
+  },
+  't': {
+    alias: 'timeout',
+    type: 'number',
+    default: DEFAULT_TIMEOUT,
+    describe: 'Maximum navigation time in milliseconds, defaults to 30 seconds, pass 0 to disable timeout.'
   }
 }
 
@@ -55,14 +63,20 @@ exports.handler = function (argv) {
     fullPage = false,
     omitBackground = false,
     path: dest,
-    device
+    device,
   } = argv;
+  let { timeout } = argv; 
   if(isNaN(argv.width)) {
     exitProgram(`The width is not a valid number. Provide something like 1000, 2000, etc.`);
   }
   if(isNaN(argv.height)) {
     exitProgram(`The height is not a valid number. Provide something like 1000, 2000, etc.`);
   }
+  if(isNaN(argv.timeout)) {
+    console.warn(`The timeout is not a valid number. Use the defaults`);
+    timeout = DEFAULT_TIMEOUT;
+  }
+  if(timeout < 0) timeout = 0;
 
   const screenshotOptions = {
     width,
@@ -71,13 +85,11 @@ exports.handler = function (argv) {
     fullPage,
     omitBackground,
     dest,
-    device
+    device,
+    timeout
   };
 
-  screenshot(urls, screenshotOptions).then(result => {
-
-  }).catch(e => {
-    console.error(e);
+  screenshot(urls, screenshotOptions).catch(e => {
     exitProgram(e.message);
   });
   

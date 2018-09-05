@@ -50,11 +50,15 @@ const exitProgram = (str) => {
  * add required prefix to the url so that puppeteer can go to the url successfully
  * WARNING: this function cannot fix a wrong url or a non-existent url
  * @param {String} str 
+ * @param {String} scheme
  */
-const fixUrl = str => {
+const fixUrl = (str, scheme = 'http') => {
   let s = str;
+  if (s.startsWith('//')) {
+    return `${scheme}:${s}`;
+  }
   if (!/^((https?|ftp):)?\/\//.test(s)) {
-    s = '//' + str;
+    s = `${scheme}://${s}`;
   }
   return s;
 }

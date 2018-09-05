@@ -42,7 +42,9 @@ test('isEmptyString function', () => {
 });
 
 test('fixUrl function', () => {
-  expect(util.fixUrl('www.example.com')).toBe('//www.example.com');
+  expect(util.fixUrl('www.example.com')).toBe('http://www.example.com');
+  expect(util.fixUrl('//www.example.com')).toBe('http://www.example.com');
+  expect(util.fixUrl('//www.example.com', 'https')).toBe('https://www.example.com');
   expect(util.fixUrl('http://www.example.com')).toBe('http://www.example.com');
   expect(util.fixUrl('https://www.example.com')).toBe('https://www.example.com');
 });
