@@ -63,6 +63,23 @@ const fixUrl = (str, scheme = 'http') => {
   return s;
 }
 
+/**
+ * Remove the empty key-value pair from the target object. 
+ * The key with value **undefined** or **null** will be removed from the object.
+ * @param {Object} obj 
+ * @returns A new object. shallow copy
+ */
+const removeEmptyValues = obj => {
+  if (obj == null || typeof obj !== 'object') return {};
+  const newObj = {};
+  for (var key in obj) {
+    if (obj.hasOwnProperty(key) && obj[key] != null) {
+      newObj[key] = obj[key];
+    }
+  }
+  return newObj;
+}
+
 
 module.exports = {
   isStrNumber,
@@ -71,5 +88,6 @@ module.exports = {
   isString,
   isEmptyString,
   exitProgram,
-  fixUrl
+  fixUrl,
+  removeEmptyValues
 };

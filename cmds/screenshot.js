@@ -51,6 +51,11 @@ exports.builder = {
     type: 'number',
     default: DEFAULT_TIMEOUT,
     describe: 'Maximum navigation time in milliseconds, defaults to 30 seconds, pass 0 to disable timeout.'
+  },
+  'e': {
+    alias: 'chrome-executable',
+    type: 'string',
+    describe: ' Path to a Chromium or Chrome executable to run instead of the bundled Chromium.'
   }
 }
 
@@ -64,6 +69,7 @@ exports.handler = function (argv) {
     omitBackground = false,
     path: dest,
     device,
+    chromeExecutable: executable
   } = argv;
   let { timeout } = argv; 
   if(isNaN(argv.width)) {
@@ -86,7 +92,8 @@ exports.handler = function (argv) {
     omitBackground,
     dest,
     device,
-    timeout
+    timeout,
+    executable
   };
 
   screenshot(urls, screenshotOptions).catch(e => {

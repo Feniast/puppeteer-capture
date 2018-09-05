@@ -1,5 +1,6 @@
 const pool = require('generic-pool');
 const puppeteer = require('puppeteer');
+const util = require('../tool/util');
 
 /**
  * A Resource Pool Holding the Browser Page.
@@ -7,17 +8,18 @@ const puppeteer = require('puppeteer');
  * Otherwise the process will not exit because of the browser is running
  */
 class BrowserPagePool {
-  constructor() {
+  constructor(options) {
     this.browser = null;
     this._browserPromise = null;
     this.pool = null;
+    this.options = util.removeEmptyValues(options || {});
     this.init();
   }
 
   async getBrowser() {
     if(this.browser != null) return this.browser;
     if(this._browserPromise == null) {
-      this._browserPromise = puppeteer.launch();
+      this._browserPromise = puppeteer.launch(this.options);
     }
     this.browser = await this._browserPromise;
     return this.browser;
@@ -54,8 +56,8 @@ BrowserPagePool.poolOptions = {
   max: 10
 };
 
-BrowserPagePool.create = () => {
-  return new BrowserPagePool();
+BrowserPagePool.create = (options) => {
+  return new BrowserPagePool(options);
 }
 
 module.exports = BrowserPagePool;

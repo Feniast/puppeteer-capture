@@ -55,3 +55,8 @@ test('exitProgram function', () => {
   util.exitProgram('error happened');
   expect(exit).toHaveBeenCalledWith(1);
 });
+
+test('remove empty values from object', () => {
+  expect(util.removeEmptyValues({})).toEqual({});
+  expect(util.removeEmptyValues({ a: 1, b: 2, c: undefined, d: null })).toEqual({a: 1, b: 2});
+});

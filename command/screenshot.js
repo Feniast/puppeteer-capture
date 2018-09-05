@@ -109,19 +109,32 @@ const makeScreenshot = async (url, options = {}) => {
     await page.goto(newUrl, { timeout });
   } catch (e) {
     console.warn(`Cannot Take Screenshot for "${url}". Reason: ${e.message}`);
-    return;
+    return { url };
   }
+
+  const pageData = await page.evaluate(() => {
+    return {
+      title: document.title || '',
+    }
+  });
 
   let savePath = dest;
   savePath += savePath.endsWith('/') ? '' : '/';
   savePath += defaultImageName(imageFormat);
-  //const newImageFormat = resolveImageFormat(imagePath);
+  savePath = path.normalize(savePath);
   await page.screenshot({
     path: savePath,
     type: imageFormat,
     fullPage,
     omitBackground
   });
+
+  return {
+    url,
+    path: savePath,
+    filename: path.basename(savePath),
+    title: pageData.title
+  };
 };
 
 const screenshot = async (urls, options = {}) => {
@@ -133,12 +146,15 @@ const screenshot = async (urls, options = {}) => {
     imageFormat,
     dest,
     device,
-    timeout
+    timeout,
+    executable
   } = options;
 
   if (urls.length === 0) return;
 
-  const pool = BrowserPagePool.create();
+  const pool = BrowserPagePool.create({
+    executablePath: executable
+  });
 
   const deviceConfig = devices[device];
   if (!util.isEmptyString(device) && !deviceConfig) {
@@ -151,7 +167,7 @@ const screenshot = async (urls, options = {}) => {
   let destPath = resolveDir(dest);
   const tasks = Promise.all(
     srcUrls.map(async url => {
-      await makeScreenshot(url, {
+      return await makeScreenshot(url, {
         width,
         height,
         fullPage,
@@ -165,7 +181,7 @@ const screenshot = async (urls, options = {}) => {
     })
   );
 
-  await tasks;
+  const results = await tasks;
 
   await pool.destroy();
 };
