@@ -4,7 +4,7 @@ const yargs = require('yargs');
 
 yargs.usage('Usage: $0 <command> [options]')
   .scriptName('puppeteer-capture-helper')
-  .command(require('./cmds/screenshot'))
+  .commandDir('./cmds')
   .demandCommand()
   .help('h')
   .alias('h', 'help')
