@@ -1,8 +1,11 @@
 const puppeteer = jest.genMockFromModule('puppeteer');
 
-puppeteer.launch = () => ({
+puppeteer.launch = () => Promise.resolve({
   newPage: () => {
-    return {};
+    return Promise.resolve({});
+  },
+  close: () => {
+    return Promise.resolve();
   }
 });
 

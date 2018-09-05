@@ -2,22 +2,23 @@ const path = require('path');
 const fs = require('fs');
 const dayjs = require('dayjs');
 const devices = require('puppeteer/DeviceDescriptors');
+const { TimeoutError } = require('puppeteer/Errors');
 const util = require('../tool/util');
 const BrowserPagePool = require('../tool/browserPagePool');
 
 /**
  * get the default image name according to the file extension provided
- * @param {String} ext 
+ * @param {String} ext
  */
 const defaultImageName = ext => {
   const dateStr = dayjs().format('YYYYMMDDHHmmssSSS');
   return `screenshot-${dateStr}.${ext}`;
-}
+};
 
 /**
- * resolve the image path 
- * @param {String} imagePath 
- * @param {String} ext 
+ * resolve the image path
+ * @param {String} imagePath
+ * @param {String} ext
  */
 const resolveImagePath = (imagePath, ext) => {
   let newPath = imagePath;
@@ -35,8 +36,7 @@ const resolveImagePath = (imagePath, ext) => {
     }
     if (!newPath.endsWith('/')) newPath = newPath + '/';
     newPath = newPath + defaultImageName(ext);
-  }
-  else if (!util.isSupportedScreenshotFormat(extName.slice(1))){
+  } else if (!util.isSupportedScreenshotFormat(extName.slice(1))) {
     newPath = `${newPath.slice(0, newPath.length - extName.length)}.${ext}`;
   }
   return newPath;
@@ -44,7 +44,7 @@ const resolveImagePath = (imagePath, ext) => {
 
 /**
  * get the image file extension of the filename
- * @param {String} filename 
+ * @param {String} filename
  */
 const resolveImageFormat = filename => {
   if (!util.isString(filename) || util.isEmptyString(filename)) {
@@ -53,13 +53,13 @@ const resolveImageFormat = filename => {
   const ext = path.extname(filename).slice(1);
   if (ext === 'jpg') return 'jpeg';
   return ext;
-}
+};
 
 /**
  * resolve the directory
- * @param {String} dir 
+ * @param {String} dir
  */
-const resolveDir = (dir) => {
+const resolveDir = dir => {
   let newPath = dir;
   if (!util.isString(dir) || util.isEmptyString(dir)) {
     newPath = './';
@@ -77,8 +77,8 @@ const resolveDir = (dir) => {
 
 /**
  * Take a screenshot for a single page
- * @param {String} url 
- * @param {Object} options 
+ * @param {String} url
+ * @param {Object} options
  */
 const makeScreenshot = async (url, options = {}) => {
   const {
@@ -89,9 +89,10 @@ const makeScreenshot = async (url, options = {}) => {
     imageFormat,
     dest,
     deviceConfig,
-    pool
+    pool,
+    timeout
   } = options;
-  
+
   const page = await pool.acquire();
 
   if (deviceConfig != null) {
@@ -103,7 +104,13 @@ const makeScreenshot = async (url, options = {}) => {
     });
   }
 
-  await page.goto(url);
+  const newUrl = util.fixUrl(url);
+  try {
+    await page.goto(newUrl, { timeout });
+  } catch (e) {
+    console.warn(`Cannot Take Screenshot for "${url}". Reason: ${e.message}`);
+    return;
+  }
 
   let savePath = dest;
   savePath += savePath.endsWith('/') ? '' : '/';
@@ -115,7 +122,7 @@ const makeScreenshot = async (url, options = {}) => {
     fullPage,
     omitBackground
   });
-}
+};
 
 const screenshot = async (urls, options = {}) => {
   const {
@@ -125,7 +132,8 @@ const screenshot = async (urls, options = {}) => {
     omitBackground,
     imageFormat,
     dest,
-    device
+    device,
+    timeout
   } = options;
 
   if (urls.length === 0) return;
@@ -133,27 +141,32 @@ const screenshot = async (urls, options = {}) => {
   const pool = BrowserPagePool.create();
 
   const deviceConfig = devices[device];
-  if (!deviceConfig) {
-    console.warn(`The device ${device} is not supported. Use the default settings instead.`);
+  if (!util.isEmptyString(device) && !deviceConfig) {
+    console.warn(
+      `The device ${device} is not supported. Use the default settings instead.`
+    );
   }
 
   const srcUrls = Array.isArray(urls) ? urls : [urls];
   let destPath = resolveDir(dest);
-  const tasks = Promise.all(srcUrls.map(async url => {
-    await makeScreenshot(url, {
-      width,
-      height,
-      fullPage,
-      omitBackground,
-      imageFormat,
-      dest: destPath,
-      deviceConfig,
-      pool
-    });
-  }));
+  const tasks = Promise.all(
+    srcUrls.map(async url => {
+      await makeScreenshot(url, {
+        width,
+        height,
+        fullPage,
+        omitBackground,
+        imageFormat,
+        dest: destPath,
+        deviceConfig,
+        pool,
+        timeout
+      });
+    })
+  );
 
   await tasks;
-  
+
   await pool.destroy();
 };
 

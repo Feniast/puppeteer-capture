@@ -37,10 +37,39 @@ const isString = o => Object.prototype.toString.call(o) === '[object String]';
  */
 const isEmptyString = s => (s == null || s.trim() === '');
 
+/**
+ * exit the process with the error message
+ * @param {String} str 
+ */
+const exitProgram = (str) => {
+  console.error(str);
+  process.exit(1);
+}
+
+/**
+ * add required prefix to the url so that puppeteer can go to the url successfully
+ * WARNING: this function cannot fix a wrong url or a non-existent url
+ * @param {String} str 
+ * @param {String} scheme
+ */
+const fixUrl = (str, scheme = 'http') => {
+  let s = str;
+  if (s.startsWith('//')) {
+    return `${scheme}:${s}`;
+  }
+  if (!/^((https?|ftp):)?\/\//.test(s)) {
+    s = `${scheme}://${s}`;
+  }
+  return s;
+}
+
+
 module.exports = {
   isStrNumber,
   parseInteger,
   isSupportedScreenshotFormat,
   isString,
-  isEmptyString
+  isEmptyString,
+  exitProgram,
+  fixUrl
 };
