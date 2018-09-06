@@ -80,6 +80,11 @@ const removeEmptyValues = obj => {
   return newObj;
 }
 
+/**
+ * Return a rejected promise when the task timeout
+ * @param {Promise} task 
+ * @param {number} timeout 
+ */
 const failWhenTimeout = (task, timeout = 5000) => {
   const timeoutPromise = new Promise(function(resolve, reject) {
     setTimeout(function() {

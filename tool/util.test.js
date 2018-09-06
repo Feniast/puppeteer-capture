@@ -60,3 +60,31 @@ test('remove empty values from object', () => {
   expect(util.removeEmptyValues({})).toEqual({});
   expect(util.removeEmptyValues({ a: 1, b: 2, c: undefined, d: null })).toEqual({a: 1, b: 2});
 });
+
+describe('Fail when timeout', () => {
+  beforeEach(() => {
+    jest.useFakeTimers();
+  });
+
+  test('task with 1000ms duration fail when timeout is 100ms', async () => {
+    const task = new Promise((resolve) => {
+      setTimeout(() => {
+        resolve();
+      }, 1000);
+    });
+    const result = util.failWhenTimeout(task, 100);
+    jest.advanceTimersByTime(100);
+    await expect(result).rejects.toThrow();
+  });
+
+  test('task with 999ms duration success when timeout is 1000ms', async () => {
+    const task2 = new Promise((resolve) => {
+      setTimeout(() => {
+        resolve(1);
+      }, 999);
+    });
+    const result2 = util.failWhenTimeout(task2, 1000);
+    jest.advanceTimersByTime(999);
+    await expect(result2).resolves.toBe(1);
+  });
+});
