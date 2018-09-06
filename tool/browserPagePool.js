@@ -5,7 +5,7 @@ const util = require('../tool/util');
 /**
  * A Resource Pool Holding the Browser Page.
  * If you don't use the pool instance anymore, you must call the destroy method manually.
- * Otherwise the process will not exit because of the browser is running
+ * Otherwise the process will not exit because of the browser is running !!!
  */
 class BrowserPagePool {
   constructor(options) {

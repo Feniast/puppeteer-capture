@@ -108,7 +108,7 @@ const makeScreenshot = async (url, options = {}) => {
   try {
     await page.goto(newUrl, { timeout });
   } catch (e) {
-    console.warn(`Cannot Take Screenshot for "${url}". Reason: ${e.message}`);
+    console.warn(`Fail to take screenshot for "${url}". Reason: ${e.message}`);
     return { url };
   }
 
@@ -122,6 +122,7 @@ const makeScreenshot = async (url, options = {}) => {
   savePath += savePath.endsWith('/') ? '' : '/';
   savePath += defaultImageName(imageFormat);
   savePath = path.normalize(savePath);
+  const filename = path.basename(savePath);
   await page.screenshot({
     path: savePath,
     type: imageFormat,
@@ -129,10 +130,12 @@ const makeScreenshot = async (url, options = {}) => {
     omitBackground
   });
 
+  console.log(`screenshot for ${url} finished, written to ${filename}`);
+
   return {
     url,
     path: savePath,
-    filename: path.basename(savePath),
+    filename,
     title: pageData.title
   };
 };
@@ -166,8 +169,8 @@ const screenshot = async (urls, options = {}) => {
   const srcUrls = Array.isArray(urls) ? urls : [urls];
   let destPath = resolveDir(dest);
   const tasks = Promise.all(
-    srcUrls.map(async url => {
-      return await makeScreenshot(url, {
+    srcUrls.map(url => {
+      return makeScreenshot(url, {
         width,
         height,
         fullPage,
