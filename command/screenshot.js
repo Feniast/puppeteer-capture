@@ -136,7 +136,8 @@ const makeScreenshot = async (url, options = {}) => {
     url,
     path: savePath,
     filename,
-    title: pageData.title
+    title: pageData.title,
+    timestamp: +new Date()
   };
 };
 

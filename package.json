@@ -17,6 +17,6 @@
     "test": "jest --verbose"
   },
   "bin": {
-    "puppeteer-capture-helper": "./index.js"
+    "pch": "./index.js"
   }
 }
