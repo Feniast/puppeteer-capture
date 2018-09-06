@@ -94,6 +94,14 @@ const failWhenTimeout = (task, timeout = 5000) => {
   return Promise.race([task, timeoutPromise]);
 }
 
+/**
+ * Filter the unique values in the array
+ * @param {Array} array 
+ */
+const filterUnique = array => {
+  if(!Array.isArray(array)) return [];
+  return [...new Set(array)];
+}
 
 module.exports = {
   isStrNumber,
@@ -104,5 +112,6 @@ module.exports = {
   exitProgram,
   fixUrl,
   removeEmptyValues,
-  failWhenTimeout
+  failWhenTimeout,
+  filterUnique
 };

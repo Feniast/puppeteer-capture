@@ -88,3 +88,11 @@ describe('Fail when timeout', () => {
     await expect(result2).resolves.toBe(1);
   });
 });
+
+describe('Filter unique values in an array', () => {
+  test('have the same values and the same order', () => {
+    const arr = ['1', 'abc', {}, 'ddd', 37727, 1, '1', 1, 'abc', 'ufx'];
+    const newArr = util.filterUnique(arr);
+    expect(newArr).toEqual(['1', 'abc', {}, 'ddd', 37727, 1, 'ufx']);
+  });
+});

@@ -166,7 +166,8 @@ const screenshot = async (urls, options = {}) => {
     );
   }
 
-  const srcUrls = Array.isArray(urls) ? urls : [urls];
+  let srcUrls = Array.isArray(urls) ? urls : [urls];
+  srcUrls = util.filterUnique(srcUrls);
   let destPath = resolveDir(dest);
   const tasks = Promise.all(
     srcUrls.map(url => {
