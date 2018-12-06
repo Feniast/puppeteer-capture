@@ -123,6 +123,7 @@ const makeScreenshot = async (url, options = {}) => {
   savePath += defaultImageName(imageFormat);
   savePath = path.normalize(savePath);
   const filename = path.basename(savePath);
+  
   await page.screenshot({
     path: savePath,
     type: imageFormat,
@@ -157,13 +158,14 @@ const screenshot = async (urls, options = {}) => {
   if (urls.length === 0) return;
 
   const pool = BrowserPagePool.create({
-    executablePath: executable
+    executablePath: executable,
+    headless: false,
   });
 
   const deviceConfig = devices[device];
   if (!util.isEmptyString(device) && !deviceConfig) {
     console.warn(
-      `The device ${device} is not supported. Use the default settings instead.`
+      `The device ${device} is not supported. The default settings will be used instead.`
     );
   }
 

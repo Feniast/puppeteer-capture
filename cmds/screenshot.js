@@ -55,7 +55,7 @@ exports.builder = {
   'e': {
     alias: 'chrome-executable',
     type: 'string',
-    describe: ' Path to a Chromium or Chrome executable to run instead of the bundled Chromium.'
+    describe: 'Path to a Chromium or Chrome executable to run instead of the bundled Chromium.'
   }
 }
 
