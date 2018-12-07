@@ -4,7 +4,7 @@ const yargs = require('yargs');
 
 yargs.usage('Usage: $0 <command> [options]')
   .scriptName('pch')
-  .commandDir('./cmds')
+  .commandDir('./lib/cmds')
   .example('$0 screenshot www.google.com www.github.com', 'Take screenshots for google and github')
   .demandCommand()
   .help('h')
