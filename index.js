@@ -9,7 +9,7 @@ yargs.usage('Usage: $0 <command> [options]')
   .demandCommand()
   .help('h')
   .alias('h', 'help')
-  .alias('v', 'version')
+  .alias('V', 'version')
   .wrap(120)
   .strict() // enforce unrecognized commands report as errors
   .argv;
